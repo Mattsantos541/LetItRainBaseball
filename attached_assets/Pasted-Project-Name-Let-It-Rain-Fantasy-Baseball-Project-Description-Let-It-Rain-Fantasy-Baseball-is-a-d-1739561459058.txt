@@ -1,0 +1,152 @@
+Project Name:
+Let It Rain Fantasy Baseball
+
+Project Description:
+Let It Rain Fantasy Baseball is a dynasty-style fantasy baseball league inspired by Ottoneu. It features:
+
+A deep salary cap system with player contracts, extensions, and cap penalties
+Auction drafts & blind-bid free agency
+Trade flexibility, including salary loans & three-team trades
+A GM Page with year-by-year salary projections
+Commissioner and manager settings for full customization
+The game follows real MLB statistics and Sabermetric-based scoring. Teams compete in head-to-head matchups or rotisserie standings, depending on league settings.
+
+📌 UI DESIGN OVERVIEW
+✅ Ottoneu-style layout as the primary design (as shown in the first reference image)
+✅ Table-heavy, data-driven UI with a clean, structured look
+✅ Tabs for navigation & key info always visible (roster count, salary cap, etc.)
+✅ Commissioner page with settings tabs similar to Fantrax UI (third reference image)
+
+📝 Key Pages & Features
+1️⃣ Roster Page (Main Team Page) – Inspired by First Image
+📌 Displays:
+
+List of all players on the team (position, salary, contract status, rookie icon)
+Live salary cap tracker and player count at the top of the page
+MLB positional depth chart
+Sortable stats columns (PTS, AVG, HR, SB, etc.)
+📌 Features:
+
+Clickable player names – opens player profile
+Quick actions: Move players, cut players, mark trade availability
+“Notebook” for personal team notes
+2️⃣ GM Page – Year-by-Year Salary Projection
+📌 Displays:
+
+A full breakdown of salaries year by year per player
+Total team salary projection for up to 7 years in advance
+Future contract extensions and estimated arbitration increases
+📌 Features:
+
+Real-time cap impact calculations when making moves
+Sortable table by player, position, or salary
+Hover over player name to see contract details
+3️⃣ Trade Page – With Future Salary Impact Display
+📌 Displays:
+
+Trade builder UI where teams can add players, salary loans, or cap space
+Year-by-year cap table impact before confirming trade
+Notification system to send trade proposals to managers
+📌 Features:
+
+Three-team trade support
+Salary loans included in trades
+Final confirmation screen showing updated cap space projections
+Email notifications for trade offers & completed trades
+4️⃣ Free Agency Page – Blind Auction System
+📌 Displays:
+
+Basic auction list with players up for bid
+Simple “Enter Bid” box next to each player
+Team salary cap impact shown in real-time before submitting
+📌 Features:
+
+Clicking on a free agent opens their player profile & bidding page
+Bidding page includes player stats, trends, and bidding history
+Once a bid is submitted, an email notification is sent to the entire league
+5️⃣ Commissioner Settings Page – Multi-Tab System
+📌 Tabs Available:
+
+General League Settings (Scoring format, roster size, cap settings)
+Trade & Free Agency Rules (Trade veto time, FA bid rules)
+Salary & Contract Rules (Extensions, cap penalties, rookie contracts)
+Override Tools (Manually adjust salaries, approve trades, fix errors)
+Transaction Log (Full history of all moves)
+📌 Features:
+
+Each tab updates the settings displayed in the main window (like Fantrax example)
+Polling system for rule changes
+Commissioner override for transactions
+6️⃣ Matchup Screen – Live Weekly H2H Tracking
+📌 Displays:
+
+Side-by-side comparison of both teams' stats
+Live head-to-head score updates
+Pitching start limit tracker (11 starts per week, prorated for long weeks)
+📌 Features:
+
+Clear start limit count displayed above pitching section
+Live updates as games progress
+⚾ Core Fantasy Features
+1. League Structure & Contracts
+✅ Dynasty format (players stay on teams year-over-year)
+✅ 40-player rosters with a $400 salary cap
+✅ Offseason flexibility – teams can drop players without penalty
+✅ Trading expiring contracts in the offseason requires a 1-year extension before the trade
+
+2. Player Contract System
+✔ Drafted Players (Contract #1)
+
+Auction draft winners have a fixed salary for two seasons
+After Year 2, managers can extend contracts:
+Year 3 Extension: +$7
+Year 4 Extension: +$7
+Year 5+ Extension: +$15 per year
+✔ Waiver Pickups
+
+Players claimed off waivers keep their existing contract terms
+✔ Free Agency Signings (Contract #2)
+
+Players signed via blind-bid free agency are placed on Contract #2
+✔ Prospects & Rookie Eligibility
+
+If a player still has rookie eligibility, their contract does not start
+Once they exceed rookie limits, their contract begins
+Rookie Status Icon appears next to rookies across the platform
+3. Trade System
+✔ Standard Trades: Players, salary obligations, and future cap space can be traded
+✔ Salary Loans in Trades: Teams can loan salary cap space but must repay it before the season ends
+✔ Three-Team Trades: Multi-team salary & player exchanges are fully supported
+✔ 48-Hour Trade Veto Period:
+
+All trades require a 48-hour review window
+Email alerts notify teams of pending trades
+Commissioners can manually approve, veto, or reverse trades
+4. Playoff System
+✔ Top 4 teams make the playoffs
+✔ Semifinals & Finals last 2 weeks each
+✔ Live matchup tracking & tiebreakers based on:
+
+Total points scored in the season
+Head-to-head record
+Other commissioner-set tiebreakers
+5. Social & Engagement Features
+✔ Trade Block System – Managers update who is available for trades
+✔ League-Wide Chat System for trade discussions & updates
+✔ Hot Stove Section – For offseason rumors & team news
+✔ Hall of Fame Section – Tracks past league champions & records
+
+6. Live Game Tracking & Stats Integration
+✔ Real-time MLB stat tracking
+✔ Live scoring updates
+✔ Integration with MLB API providers (FanGraphs, SportsRadar, Baseball-Reference)
+
+7. Platform & Hosting
+✔ Target Platform: Web-based application (mobile-friendly)
+✔ Hosting: AWS, Firebase, or self-hosted server
+✔ Backend: Node.js with Express or Django (Python)
+✔ Database: PostgreSQL or MongoDB
+
+8. Language Preferences
+Replit Agent Interaction: English
+Application Interface: English (multi-language support in future updates)
