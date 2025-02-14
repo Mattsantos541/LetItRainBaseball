@@ -1,141 +1,143 @@
-import { users, teams, players, trades, tradeItems } from "@shared/schema";
-import type { InsertUser, User, Team, Player, Trade, TradeItem } from "@shared/schema";
+import {
+  users,
+  teams,
+  players,
+  trades,
+  tradeItems,
+  type User,
+  type Team,
+  type Player,
+  type Trade,
+  type TradeItem,
+  type InsertUser
+} from "@shared/schema";
+import { db } from "./db";
+import { eq } from "drizzle-orm";
 import session from "express-session";
-import createMemoryStore from "memorystore";
+import connectPg from "connect-pg-simple";
+import { pool } from "./db";
 
-const MemoryStore = createMemoryStore(session);
+const PostgresSessionStore = connectPg(session);
 
 export interface IStorage {
   // User methods
   getUser(id: number): Promise<User | undefined>;
   getUserByUsername(username: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  
+
   // Team methods
   getTeam(id: number): Promise<Team | undefined>;
   getTeamsByUserId(userId: number): Promise<Team[]>;
   createTeam(team: Omit<Team, "id">): Promise<Team>;
-  
+
   // Player methods
   getPlayer(id: number): Promise<Player | undefined>;
   getPlayersByTeamId(teamId: number): Promise<Player[]>;
   createPlayer(player: Omit<Player, "id">): Promise<Player>;
   updatePlayer(id: number, updates: Partial<Player>): Promise<Player>;
-  
+
   // Trade methods
   getTrade(id: number): Promise<Trade | undefined>;
   getTradesByTeamId(teamId: number): Promise<Trade[]>;
   createTrade(trade: Omit<Trade, "id">): Promise<Trade>;
   updateTradeStatus(id: number, status: string): Promise<Trade>;
   getTradeItems(tradeId: number): Promise<TradeItem[]>;
-  
-  sessionStore: session.SessionStore;
+
+  sessionStore: session.Store;
 }
 
-export class MemStorage implements IStorage {
-  private users: Map<number, User>;
-  private teams: Map<number, Team>;
-  private players: Map<number, Player>;
-  private trades: Map<number, Trade>;
-  private tradeItems: Map<number, TradeItem>;
-  private currentId: number;
-  sessionStore: session.SessionStore;
+export class DatabaseStorage implements IStorage {
+  sessionStore: session.Store;
 
   constructor() {
-    this.users = new Map();
-    this.teams = new Map();
-    this.players = new Map();
-    this.trades = new Map();
-    this.tradeItems = new Map();
-    this.currentId = 1;
-    this.sessionStore = new MemoryStore({
-      checkPeriod: 86400000,
+    this.sessionStore = new PostgresSessionStore({
+      pool,
+      createTableIfMissing: true,
     });
   }
 
   async getUser(id: number): Promise<User | undefined> {
-    return this.users.get(id);
+    const [user] = await db.select().from(users).where(eq(users.id, id));
+    return user;
   }
 
   async getUserByUsername(username: string): Promise<User | undefined> {
-    return Array.from(this.users.values()).find(
-      (user) => user.username === username,
-    );
+    const [user] = await db.select().from(users).where(eq(users.username, username));
+    return user;
   }
 
   async createUser(insertUser: InsertUser): Promise<User> {
-    const id = this.currentId++;
-    const user: User = { ...insertUser, id };
-    this.users.set(id, user);
+    const [user] = await db.insert(users).values(insertUser).returning();
     return user;
   }
 
   async getTeam(id: number): Promise<Team | undefined> {
-    return this.teams.get(id);
+    const [team] = await db.select().from(teams).where(eq(teams.id, id));
+    return team;
   }
 
   async getTeamsByUserId(userId: number): Promise<Team[]> {
-    return Array.from(this.teams.values()).filter(team => team.userId === userId);
+    return db.select().from(teams).where(eq(teams.userId, userId));
   }
 
   async createTeam(team: Omit<Team, "id">): Promise<Team> {
-    const id = this.currentId++;
-    const newTeam: Team = { ...team, id };
-    this.teams.set(id, newTeam);
+    const [newTeam] = await db.insert(teams).values(team).returning();
     return newTeam;
   }
 
   async getPlayer(id: number): Promise<Player | undefined> {
-    return this.players.get(id);
+    const [player] = await db.select().from(players).where(eq(players.id, id));
+    return player;
   }
 
   async getPlayersByTeamId(teamId: number): Promise<Player[]> {
-    return Array.from(this.players.values()).filter(player => player.teamId === teamId);
+    return db.select().from(players).where(eq(players.teamId, teamId));
   }
 
   async createPlayer(player: Omit<Player, "id">): Promise<Player> {
-    const id = this.currentId++;
-    const newPlayer: Player = { ...player, id };
-    this.players.set(id, newPlayer);
+    const [newPlayer] = await db.insert(players).values(player).returning();
     return newPlayer;
   }
 
   async updatePlayer(id: number, updates: Partial<Player>): Promise<Player> {
-    const player = await this.getPlayer(id);
-    if (!player) throw new Error("Player not found");
-    const updatedPlayer = { ...player, ...updates };
-    this.players.set(id, updatedPlayer);
+    const [updatedPlayer] = await db
+      .update(players)
+      .set(updates)
+      .where(eq(players.id, id))
+      .returning();
     return updatedPlayer;
   }
 
   async getTrade(id: number): Promise<Trade | undefined> {
-    return this.trades.get(id);
+    const [trade] = await db.select().from(trades).where(eq(trades.id, id));
+    return trade;
   }
 
   async getTradesByTeamId(teamId: number): Promise<Trade[]> {
-    return Array.from(this.trades.values()).filter(
-      trade => trade.proposingTeamId === teamId || trade.receivingTeamId === teamId
-    );
+    return db
+      .select()
+      .from(trades)
+      .where(eq(trades.proposingTeamId, teamId))
+      .or(eq(trades.receivingTeamId, teamId));
   }
 
   async createTrade(trade: Omit<Trade, "id">): Promise<Trade> {
-    const id = this.currentId++;
-    const newTrade: Trade = { ...trade, id };
-    this.trades.set(id, newTrade);
+    const [newTrade] = await db.insert(trades).values(trade).returning();
     return newTrade;
   }
 
   async updateTradeStatus(id: number, status: string): Promise<Trade> {
-    const trade = await this.getTrade(id);
-    if (!trade) throw new Error("Trade not found");
-    const updatedTrade = { ...trade, status };
-    this.trades.set(id, updatedTrade);
+    const [updatedTrade] = await db
+      .update(trades)
+      .set({ status })
+      .where(eq(trades.id, id))
+      .returning();
     return updatedTrade;
   }
 
   async getTradeItems(tradeId: number): Promise<TradeItem[]> {
-    return Array.from(this.tradeItems.values()).filter(item => item.tradeId === tradeId);
+    return db.select().from(tradeItems).where(eq(tradeItems.tradeId, tradeId));
   }
 }
 
-export const storage = new MemStorage();
+export const storage = new DatabaseStorage();
